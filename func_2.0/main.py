@@ -35,12 +35,8 @@ def is_word(text:str) -> bool:
 
 def unique_num(num:str)->bool:
     '''Функция проверки единственности номера'''
-    return 1
-    # try:
-    #     index = search_num(num)
-    #     return index == None
-    # except Exception:
-    #     return 1
+    if len(search_index(num)) == 0:
+        return 1
 
 def is_digit(num:str) -> float:
     ''' Функция проверки ввода на число '''
