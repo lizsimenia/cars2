@@ -100,7 +100,14 @@ def adding():
 
 
 def removal():
-    pass
+    num_car = input("Введите номер машины:")
+    index = search_index(num_car)
+    with open('accounting.txt', 'r', encoding='UTF8') as file:
+        lines = file.readlines()
+        for i in index:
+            del lines[i:i+limit+1]
+            with open('accounting.txt', 'w', encoding='UTF8') as file:
+                file.writelines(lines)
 
 def format_car(index:int)->str:
     '''Функция форматированного вывода характеристик одной машины'''
@@ -134,9 +141,8 @@ def display()->None:
 
 def change(num_car:str)->Any:
     ''' Функция изменения одной характеристики машины по ее номору'''
-    pass
-    # num_car = input("Введите номер машины: ")
-    # search(num_car)
+    num_car = input("Введите номер машины: ")
+    search_index(num_car)
     # spec = input("Выберите характеристику для изменения:")
 
 def display_car_string(index, start=1):
@@ -157,25 +163,31 @@ def display_car_string(index, start=1):
                     print(start, string_car)
                     break
 
-def sorting()->Any:
-    '''Функция вывода машин с одной и той же характеристикой'''
-    spec = input("Введите значение общей характеристики для поиска: ")
+def search_index(spec:str)->int:
     with open('accounting.txt', 'r', encoding = 'UTF8') as file:
         lines = file.readlines()
-        flag, search_index = 0, -1
+        list_index = []
+        flag, index = 0, -1
         num = 0
         for cur_index in range(len(lines)):
             if spec in lines[cur_index][:-1]:
                 flag = 1
-                num += 1
             if 'end' in lines[cur_index] and flag == 1:
-                search_index = (cur_index// (limit-1) - 1) * (limit-1) + cur_index%(limit-1) -1
-                if flag == 1:
-                    print('     '.join(list_spec[:7]))
-                display_car_string(search_index, num)
+                index = (cur_index// (limit-1) - 1) * (limit-1) + cur_index%(limit-1) -1
                 flag = 0
+                list_index.append(index)
         if flag == -1:
             print("ERROR: машин с таким параметром не существует")
+        return list_index
+
+
+def sorting()->Any:
+    '''Функция вывода машин с одной и той же характеристикой'''
+    spec = input("Введите значение общей характеристики для поиска: ")
+    for i, value in enumerate(search_index(spec)):
+        if i == 0:
+            print('     '.join(list_spec[:7]))
+        display_car_string(value, i+1)
 
 def menu():
     """
