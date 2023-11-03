@@ -1,12 +1,13 @@
 import pattern_ch
-from typing import Callable, Any, Dict
+from typing import Callable, Any, Dict, List, Optional
 
-list_spec = [elem for elem in pattern_ch.info_pattern]
-len_list_spec = [len(elem) for elem in pattern_ch.info_pattern]
-limit = len(list_spec)
+list_spec : List[str] = [elem for elem in pattern_ch.info_pattern]
+len_list_spec : List[int] = [len(elem) for elem in pattern_ch.info_pattern]
+limit:int = len(list_spec)
 
+# функции проверки
 def is_no_spec(text:str) -> bool:
-    ''' Функция проверки ввода на отсутствие спец символов'''
+    '''Функция проверки строки на отсутствие спец символов'''
     spec = [chr(i) for i in range(33, 48)]+[chr(i) for i in range(58, 65)] +\
     [chr(i) for i in range(91, 97)] + [chr(i) for i in range(123, 127)]
     for elem in text:
@@ -27,7 +28,6 @@ def check_num_car(text:str) -> Any:
     except Exception:
         print("ERROR: некорректный номер машины")
 
-
 def is_word(text:str) -> bool:
     ''' Функция проверки ввода только букв'''
     alfa = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюяABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -39,36 +39,48 @@ def unique_num(num:str)->bool:
         return 1
 
 def is_digit(num:str) -> float:
-    ''' Функция проверки ввода на число '''
+    '''Функция проверки ввода числа'''
     try:
         return float(num)
     except Exception: print('ERROR: введите число')
 
 
-def make_a_choice(key:str, data:list) -> int:
+# функции выбора/задания
+def make_a_choice(key:str, data:list) -> str:
     """
-    Функция задания характеристики из списка
+    Функция выборки из списка
 
-    выбирает характеристику из предложенных
-    с помощью ввода числа
+    нумерация и вывод характеристик,
+    ввод номера характеристики
 
+    Args:
+        key (str): название характеристики
+        data (list): список возможного значения характеристики
+
+    Returns:
+        choice (str): значение характеристики
     """
     num_list = {choice[0]: choice[1] for choice in enumerate(data)}
     print(key, ": ", *[num_list[i] + '(' + str(i+1) + ')' for i in num_list.keys()])
     while True:
         num = input( f'{key}: ')
         if is_digit(num):
-            if 1 <= int(num) <= len(num_list):
-                choice = num_list[int(num)-1]
-                break
+            try:
+                if 1 <= int(num) <= len(num_list) :
+                    choice = num_list[int(num)-1]
+                    break
+            except Exception:
+                print("ERROR: введите номер целочисленно")
     return choice
 
+
 def string_input(spec_name:str) -> str:
+    '''Функция задания str характеристик'''
     while True:
         spec_value = input( f'{spec_name}: ')
         if is_no_spec(spec_value):
             if spec_name == 'Производитель':
-                if is_word(spec_name):
+                if is_word(spec_value):
                     break
                 else:
                     print("ERROR: название производителя может состоять только из букв")
@@ -77,17 +89,30 @@ def string_input(spec_name:str) -> str:
                     if unique_num(spec_value):
                         break
                     else: print("ERROR: машина с таким номером существует в файле.")
+            elif spec_name == 'Цвет':
+                if is_word(spec_value):
+                    break
+                else:
+                    print("ERROR: название цвета может состоять только из букв")
             else:
                 break
     return spec_value
 
-def choose_input(spec_name):
+def choose_input(spec_name:str) -> str:
+    '''Функция задания характеристик из выборки'''
     return str(make_a_choice(spec_name, pattern_ch.info_pattern[spec_name]))
 
-def float_input(spec_name):
-    return input( f'{spec_name}: ')
+def float_input(spec_name:str) -> str:
+    '''Функция задания числовой характеристики'''
+    while True:
+        num = input( f'{spec_name}: ')
+        if is_digit(num):
+            return num
+        else:
+            print("ERROR: введите числовое значение")
 
-def input_data(spec_name):
+def input_data(spec_name:str) -> str:
+    '''Функция задания любой характеристики'''
     info_pattern_proxy = pattern_ch.info_pattern
     if info_pattern_proxy[spec_name] == 'str':
         spec_value = string_input(spec_name)
@@ -99,24 +124,39 @@ def input_data(spec_name):
         print("супер мега ошибка")
     return spec_value
 
-def adding():
-    with open('accounting.txt', 'a', encoding = 'UTF8') as file:
-        info_pattern_proxy = pattern_ch.info_pattern
-        for spec_name in info_pattern_proxy:
-            spec_value = input_data(spec_name)
-            file.write(spec_value +"\n")
-        file.write("end")
 
+# вспомогательные функции
+def search_index(spec:str, warn = 0)->List[int]:
+    """
+    Функция поиска индексов строк в файле
 
-def removal():
-    num_car = input("Введите номер машины:")
-    index = search_index(num_car)
-    with open('accounting.txt', 'r', encoding='UTF8') as file:
+    поиск заданной характеристики в файле,
+    вычисление индекса строки номера машины,
+    запись индексов в список
+
+    Args:
+        spec (str): значение характеристики для поиска
+
+    Returns:
+        list_index(List[int]): список индексов машин
+    """
+    with open('accounting.txt', 'r', encoding = 'UTF8') as file:
         lines = file.readlines()
-        for i in index:
-            del lines[i:i+limit+1]
-            with open('accounting.txt', 'w', encoding='UTF8') as file:
-                file.writelines(lines)
+        list_index = []
+        flag, index = 0, -1
+        for cur_index in range(len(lines)):
+            if spec == lines[cur_index][:-1]:
+                flag = 1
+                if warn == 1:
+                    if spec != lines[cur_index][:-1]:
+                        flag = -1
+            if 'end' in lines[cur_index] and flag == 1:
+                index = (cur_index// (limit-1) - 1) * (limit-1) + cur_index%(limit-1) -1
+                flag = 0
+                list_index.append(index)
+        if flag == -1:
+            print("ERROR: машин с таким параметром не существует")
+        return list_index
 
 def format_car(index:int)->str:
     '''Функция форматированного вывода характеристик одной машины'''
@@ -138,37 +178,18 @@ def format_car(index:int)->str:
                     output_string.append(f'{list_spec[i%limit]}: {list_lines[i][:-1]}')
         return output_string
 
-def display()->None:
-    '''Функция вывода основной информации машин учёта в виде таблицы'''
-    with open('accounting.txt', 'r', encoding = 'UTF8') as file:
-        print('     '.join(list_spec[:7]))
-        index, start = 0, 1
-        for line in file:
-            display_car_string(index, start)
-            index += (limit+1)
-            start += 1
+def display_car_string(index:int, start=1)->None:
+    """
+    Функция форматированного вывода информации об одной машине
 
-def change()->Any:
-    ''' Функция изменения одной характеристики машины по ее номору'''
-    num_car = input("Введите номер машины: ")
-    for i, value in enumerate(format_car(search_index(num_car)[0])):
-        print(f'{value} ({i+1})')
-    num_spec = input("\nВыберите характеристику для изменения: ")
-    if is_digit(num_spec):
-        num_spec = int(num_spec)
-        if 1 <= int(num_spec) <= 9:
-            index_spec = search_index(num_car)[0] + int(num_spec) - 1
-            new_data = input_data(list_spec[num_spec-1])
-            with open('accounting.txt', 'r', encoding='UTF8') as file:
-                lines = file.readlines()
-                lines[index_spec] = new_data+'\n'
-                with open('accounting.txt', 'w', encoding='UTF8') as file:
-                    file.writelines(lines)
-        else:
-            print("ERROR")
+    поиск первой строчки,
+    запись в строчку значений характеристик с учётом табуляции,
+    вывод полученной строки
 
-
-def display_car_string(index, start=1):
+    Args:
+        index (int): индекс первой строки информации о машине
+        start (int, optional): точка отсчета. Defaults to 1.
+    """
     with open('accounting.txt', 'r', encoding = 'UTF8') as file:
         data_base = file.readlines()
         flag = 0
@@ -186,25 +207,89 @@ def display_car_string(index, start=1):
                     print(start, string_car)
                     break
 
-def search_index(spec:str)->int:
+
+#основные функции-действия
+def adding()->None:
+    """
+    Функция добавления машины в учёт
+
+    вызов функции задания всех характеристик,
+    запись значений в файл
+
+    """
+    with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+        info_pattern_proxy = pattern_ch.info_pattern
+        for spec_name in info_pattern_proxy:
+            spec_value = input_data(spec_name)
+            file.write(spec_value +"\n")
+        file.write("end")
+
+def removal()->None:
+    """
+    Функция удаления машины из учета
+
+    ввод номера машины,
+    поиск строк характеристик машины,
+    перезапись файла
+
+    """
+    num_car:str = input("Введите номер машины:")
+    if check_num_car(num_car):
+        index = search_index(num_car, 1)
+        if len(index) != 0:
+            with open('accounting.txt', 'r', encoding='UTF8') as file:
+                lines = file.readlines()
+                for i in index:
+                    del lines[i:i+limit+1]
+                    with open('accounting.txt', 'w', encoding='UTF8') as file:
+                        file.writelines(lines)
+
+def display()->None:
+    '''Функция вывода основной информации машин учёта в виде таблицы'''
     with open('accounting.txt', 'r', encoding = 'UTF8') as file:
-        lines = file.readlines()
-        list_index = []
-        flag, index = 0, -1
-        num = 0
-        for cur_index in range(len(lines)):
-            if spec in lines[cur_index][:-1]:
-                flag = 1
-            if 'end' in lines[cur_index] and flag == 1:
-                index = (cur_index// (limit-1) - 1) * (limit-1) + cur_index%(limit-1) -1
-                flag = 0
-                list_index.append(index)
-        if flag == -1:
-            print("ERROR: машин с таким параметром не существует")
-        return list_index
+        print('     '.join(list_spec[:7]))
+        index, start = 0, 1
+        for line in file:
+            display_car_string(index, start)
+            index += (limit+1)
+            start += 1
 
+def change()->None:
+    """
+    Функция изменения одной характеристики машины по ее номеру
 
-def sorting()->Any:
+    ввод номера машины,
+    выборка характеристики для изменения,
+    изменение характеристики,
+    перезапись файла
+    """
+    num_car = input("Введите номер машины: ")
+    if check_num_car(num_car, 1):
+        if len(search_index(num_car))!=0:
+            for i, value in enumerate(format_car(search_index(num_car)[0])):
+                if i >= 3:
+                    print(f'{value} ({i+1-3})')
+                else:
+                    print(f'{value}')
+
+            num_spec = input("\nВыберите характеристику для изменения: ")
+            if is_digit(num_spec):
+                num_spec = int(num_spec)
+                if 1 <= num_spec <= 9-3:
+                    num_spec += 3
+                    index_spec = search_index(num_car)[0] + num_spec - 1
+                    new_data = input_data(list_spec[num_spec-1])
+                    with open('accounting.txt', 'r', encoding='UTF8') as file:
+                        lines = file.readlines()
+                        lines[index_spec] = new_data+'\n'
+                        with open('accounting.txt', 'w', encoding='UTF8') as file:
+                            file.writelines(lines)
+                else:
+                    print("ERROR: некорректный номер характеристики")
+        else:
+            print("ERROR: такой машины нет")
+
+def sorting()->None:
     '''Функция вывода машин с одной и той же характеристикой'''
     spec = input("Введите значение общей характеристики для поиска: ")
     for i, value in enumerate(search_index(spec)):
