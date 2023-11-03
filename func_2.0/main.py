@@ -6,6 +6,33 @@ len_list_spec : List[int] = [len(elem) for elem in pattern_ch.info_pattern]
 limit:int = len(list_spec)
 
 # функции проверки
+def termination_check()->None:
+    '''Функция стандартизирования файла'''
+    with open('accounting.txt', 'r', encoding = 'UTF8') as file:
+        lines = file.readlines()
+        if 'end' not in lines[-1]:
+            while True:
+                request = input("Продолжить добавление машины в учёт? да(1) нет(2) ")
+                if request == '1':
+                    if len(lines) // limit != 0:
+                        start_spec = len(lines) % (limit+1) - 1
+                    else:
+                        start_spec = len(lines) % limit - 1
+                    adding(start_spec)
+                    break
+                elif request == '2':
+                    for i, value in enumerate(lines):
+                        if value[:-1] == 'end':
+                            start = i+1
+                    with open('accounting.txt', 'r', encoding='UTF8') as file:
+                        lines = file.readlines()
+                        del lines[start:]
+                        with open('accounting.txt', 'w', encoding='UTF8') as file:
+                            file.writelines(lines)
+                    break
+                else:
+                    print("ERROR: введите да или нет")
+
 def is_no_spec(text:str) -> bool:
     '''Функция проверки строки на отсутствие спец символов'''
     spec = [chr(i) for i in range(33, 48)]+[chr(i) for i in range(58, 65)] +\
@@ -145,7 +172,7 @@ def search_index(spec:str, warn = 0)->List[int]:
         list_index = []
         flag, index = 0, -1
         for cur_index in range(len(lines)):
-            if spec == lines[cur_index][:-1]:
+            if spec in lines[cur_index][:-1]:
                 flag = 1
                 if warn == 1:
                     if spec != lines[cur_index][:-1]:
@@ -161,7 +188,6 @@ def search_index(spec:str, warn = 0)->List[int]:
 def format_car(index:int)->str:
     '''Функция форматированного вывода характеристик одной машины'''
     with open('accounting.txt', 'r', encoding = 'UTF8') as file:
-        list_spec = [elem for elem in pattern_ch.info_pattern]
         list_lines = file.readlines()
         start_index = index
         work = 0
@@ -209,7 +235,7 @@ def display_car_string(index:int, start=1)->None:
 
 
 #основные функции-действия
-def adding()->None:
+def adding(start_spec=-1)->None:
     """
     Функция добавления машины в учёт
 
@@ -217,14 +243,17 @@ def adding()->None:
     запись значений в файл
 
     """
-    with open('accounting.txt', 'a', encoding = 'UTF8') as file:
-        info_pattern_proxy = pattern_ch.info_pattern
-        for spec_name in info_pattern_proxy:
+    list_spec_1 = list_spec
+    if start_spec != -1:
+        list_spec_1 = list_spec[start_spec+1:]
+    for spec_name in list_spec_1:
+        with open('accounting.txt', 'a', encoding = 'UTF8') as file:
             spec_value = input_data(spec_name)
             file.write(spec_value +"\n")
-        file.write("end")
+    with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+        file.write("end\n")
 
-def removal()->None:
+def removal(num_car = None)->None:
     """
     Функция удаления машины из учета
 
@@ -233,7 +262,8 @@ def removal()->None:
     перезапись файла
 
     """
-    num_car:str = input("Введите номер машины:")
+    if num_car == None:
+        num_car:str = input("Введите номер машины:")
     if check_num_car(num_car):
         index = search_index(num_car, 1)
         if len(index) != 0:
@@ -264,7 +294,7 @@ def change()->None:
     перезапись файла
     """
     num_car = input("Введите номер машины: ")
-    if check_num_car(num_car, 1):
+    if check_num_car(num_car):
         if len(search_index(num_car))!=0:
             for i, value in enumerate(format_car(search_index(num_car)[0])):
                 if i >= 3:
@@ -301,9 +331,12 @@ def menu():
     """
     Функция вызова меню
 
+    корректное завершение прошлой работы приложения,
     выборка одного из предложенных действий,
     выполение соотвествующей функции выбранного действия
     """
+    termination_check()
+
     print(f"\n MENU\n\
           \n Выйти из меню (0)\
           \n Добавление машины в учёт (1)\
