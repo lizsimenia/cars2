@@ -170,7 +170,7 @@ def search_index(spec:str, warn = 0)->List[int]:
     with open('accounting.txt', 'r', encoding = 'UTF8') as file:
         lines = file.readlines()
         list_index = []
-        flag, index = 0, -1
+        flag, index = -1, 0
         for cur_index in range(len(lines)):
             if spec in lines[cur_index][:-1]:
                 flag = 1
@@ -263,7 +263,7 @@ def removal(num_car = None)->None:
 
     """
     if num_car == None:
-        num_car:str = input("Введите номер машины:")
+        num_car:str = input("Введите номер машины: ")
     if check_num_car(num_car):
         index = search_index(num_car, 1)
         if len(index) != 0:
@@ -316,8 +316,6 @@ def change()->None:
                             file.writelines(lines)
                 else:
                     print("ERROR: некорректный номер характеристики")
-        else:
-            print("ERROR: такой машины нет")
 
 def sorting()->None:
     '''Функция вывода машин с одной и той же характеристикой'''
@@ -364,9 +362,6 @@ def menu():
     elif act == '5':
         print("\nСОРТИРОВКА МАШИН ПО ХАРАКТЕРИСТИКЕ\n")
         sorting()
-    elif act == '6':
-        print("\nОТОБРАЖЕНИЕ ХАРАКТЕРИСТИК ОДНОЙ МАШИНЫ\n")
-        display()
     else:
         print("ERROR: такой команды не существует\n")
 
