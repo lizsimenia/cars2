@@ -108,12 +108,14 @@ while True:
             else:
                 choose_dict = {}
                 num = 1
+                # создание выборки
                 for choice in info_pattern[spec_name]:
                     choose_dict[num] = choice
                     num += 1
                 print(spec_name, ": ", *[choose_dict[i] + '(' + str(i) + ')' for i in choose_dict.keys()])
                 while True:
                     num = input( f'{spec_name}: ')
+                    # проверка выборки
                     try:
                         float(num)
                         try:
@@ -126,8 +128,8 @@ while True:
                             print("ERROR: введите номер целочисленно")
                     except Exception: print('ERROR: введите число')
 
-        # with open('accounting.txt', 'a', encoding = 'UTF8') as file:
-        #     file.write("end\n")
+        with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+            file.write("end\n")
 
 
     elif act == '2':
