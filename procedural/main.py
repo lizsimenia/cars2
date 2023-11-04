@@ -312,7 +312,34 @@ while True:
 
     elif act == '2':
         print("\nУДАЛЕНИЕ МАШИНЫ ИЗ УЧЁТА\n")
-        # removal()
+        num_car= input("Введите номер машины: ")
+        try:
+            if len(num_car) >= 8\
+                and num_car[0] in 'АВЕКМНОРСТУХ' and (0 <= int(num_car[1:4]) < 1000)\
+                and num_car[4] in 'АВЕКМНОРСТУХ'\
+                and num_car[5] in 'АВЕКМНОРСТУХ'and (0 <= int(num_car[-2:]) < 1000):
+                    with open('accounting.txt', 'r', encoding = 'UTF8') as file:
+                        lines = file.readlines()
+                        list_index = []
+                        flag = 0
+                        for cur_index in range(len(lines)):
+                            if num_car == lines[cur_index][:-1]:
+                                flag == 1
+                                list_index.append(cur_index)
+                                break
+                        if flag == 0:
+                            print("ERROR: машины с таким номером не существует")
+                    if len(list_index) != 0:
+                        with open('accounting.txt', 'r', encoding='UTF8') as file:
+                            lines = file.readlines()
+                            for i in list_index:
+                                del lines[i:i+limit+1]
+                                with open('accounting.txt', 'w', encoding='UTF8') as file:
+                                    file.writelines(lines)
+            else: raise Exception
+        except Exception:
+            print("ERROR: некорректный номер машины")
+
     elif act == '3':
         print("\nОТОБРАЖЕНИЕ ВСЕГО УЧЁТА\n")
         # display()
