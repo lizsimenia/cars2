@@ -1,5 +1,3 @@
-#TODO весь функциональный стиль переписать в процедурный, расскрыть встроенные функции
-
 info_pattern = {'Номер машины': 'str',
                 'Производитель': 'str',
                 'Модельный ряд': 'str',
@@ -21,13 +19,14 @@ for elem in list_spec:
     len_list_spec.append(i)
 
 while True:
-    # воостановление работы
+    # восстановление работы
     with open('accounting.txt', 'r', encoding = 'UTF8') as file:
         lines = file.readlines()
         if 'end' not in lines[-1]:
             while True:
                 request = input("Продолжить добавление машины в учёт? да(1) нет(2) ")
                 if request == '1':
+                    len_lines = 0
                     for _ in lines:
                         len_lines += 1
                     if len_lines // limit != 0:
@@ -567,10 +566,6 @@ while True:
                                 if value[:-1] in info_pattern['Тип коробки передач']:
                                     print(start+1, string_car)
                                     break
-
-        elif act == '6':
-            print("\nОТОБРАЖЕНИЕ ХАРАКТЕРИСТИК ОДНОЙ МАШИНЫ\n")
-            # display()
         else:
             raise Exception
     except Exception:
