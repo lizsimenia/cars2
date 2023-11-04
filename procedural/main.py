@@ -535,7 +535,39 @@ while True:
 
         elif act == '5':
             print("\nСОРТИРОВКА МАШИН ПО ХАРАКТЕРИСТИКЕ\n")
-            # sorting()
+            spec = input("Введите значение общей характеристики для поиска: ")
+            with open('accounting.txt', 'r', encoding = 'UTF8') as file:
+                lines = file.readlines()
+                list_index = []
+                flag, index = -1, -1
+                for cur_index in range(len(lines)):
+                    if spec in lines[cur_index][:-1]:
+                        flag = 1
+                    if 'end' in lines[cur_index] and flag == 1:
+                        index = (cur_index// (limit-1) - 1) * (limit-1) + cur_index%(limit-1) -1
+                        flag = 0
+                        list_index.append(index)
+                if flag == -1:
+                    print("ERROR: машин с таким параметром не существует")
+                else:
+                    print('     '.join(list_spec[:7]))
+                    data_base = lines
+                    for start, index in enumerate(list_index):
+                        flag = 0
+                        for i, value in enumerate(data_base):
+                            if i == index:
+                                string_car = ""
+                                flag = 1
+                            if flag == 1:
+                                if index != 0:
+                                    tab = len_list_spec[(i-index//limit*limit)%limit-1] -len(value[:-1]) + 5
+                                else:
+                                    tab = len_list_spec[(i-index//limit*limit)%limit] -len(value[:-1]) + 5
+                                string_car += (value[:-1] + tab * ' ')
+                                if value[:-1] in info_pattern['Тип коробки передач']:
+                                    print(start+1, string_car)
+                                    break
+
         elif act == '6':
             print("\nОТОБРАЖЕНИЕ ХАРАКТЕРИСТИК ОДНОЙ МАШИНЫ\n")
             # display()
