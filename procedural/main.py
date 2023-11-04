@@ -33,11 +33,10 @@ while True:
     elif act == '1':
         print("\nДОБАВЛЕНИЕ МАШИНЫ В УЧЁТ\n")
         for spec_name in list_spec:
+            # номер машины, производитель, модельный ряд, цвет
             if info_pattern[spec_name] == 'str':
                 while True:
                     spec_value = input( f'{spec_name}: ')
-
-                    # TODO: без chr
                     special_signs = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.',\
                                      '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
                     # проверка на специальные символы
@@ -103,18 +102,34 @@ while True:
                                 file.write(spec_value+'\n')
                             break
 
-            # elif isinstance(list_spec[spec_name], list):
-            #     spec_value = choose_input(spec_name)
             # elif list_spec[spec_name] == 'float':
             #     spec_value = float_input(spec_name)
-            # else:
-            #     print("супер мега ошибка")
 
-            #     spec_value = input_data(spec_name)
-            #     file.write(spec_value +"\n")
+            else:
+                choose_dict = {}
+                num = 1
+                for choice in info_pattern[spec_name]:
+                    choose_dict[num] = choice
+                    num += 1
+                print(spec_name, ": ", *[choose_dict[i] + '(' + str(i) + ')' for i in choose_dict.keys()])
+                while True:
+                    num = input( f'{spec_name}: ')
+                    try:
+                        float(num)
+                        try:
+                            if 1 <= int(num) <= len(choose_dict) :
+                                choice = choose_dict[int(num)]
+                                with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                    file.write(choice+'\n')
+                                break
+                        except Exception:
+                            print("ERROR: введите номер целочисленно")
+                    except Exception: print('ERROR: введите число')
 
         # with open('accounting.txt', 'a', encoding = 'UTF8') as file:
         #     file.write("end\n")
+
+
     elif act == '2':
         print("\nУДАЛЕНИЕ МАШИНЫ ИЗ УЧЁТА\n")
         # removal()
