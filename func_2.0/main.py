@@ -199,7 +199,7 @@ def format_car(index:int)->str:
             if index == i or work >= 1:
                 work += 1
                 if start_index != 0:
-                    output_string.append(f'{list_spec[(i-1)%limit]}: {list_lines[i][:-1]}')
+                    output_string.append(f'{list_spec[i%(limit+1)]}: {list_lines[i][:-1]}')
                 else:
                     output_string.append(f'{list_spec[i%limit]}: {list_lines[i][:-1]}')
         return output_string
