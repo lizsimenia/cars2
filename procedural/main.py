@@ -21,7 +21,154 @@ for elem in list_spec:
     len_list_spec.append(i)
 
 while True:
-    # termination_check()
+    # воостановление работы
+    with open('accounting.txt', 'r', encoding = 'UTF8') as file:
+        lines = file.readlines()
+        if 'end' not in lines[-1]:
+            while True:
+                request = input("Продолжить добавление машины в учёт? да(1) нет(2) ")
+                if request == '1':
+                    for _ in lines:
+                        len_lines += 1
+                    if len_lines // limit != 0:
+                        start_spec = len(lines) % (limit+1)
+                    else:
+                        start_spec = len(lines) % limit
+                    for spec_name in list_spec[start_spec:]:
+                        if info_pattern[spec_name] == 'str':
+                            while True:
+                                spec_value = input( f'{spec_name}: ')
+                                special_signs = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.',\
+                                                '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
+                                # проверка на специальные символы
+                                for elem in spec_value:
+                                    if elem in special_signs:
+                                        print('ERROR: можно вводить только буквы и цифры')
+                                        break
+                                else:
+                                    if spec_name == 'Производитель':
+                                        # проверка на вхождение только букв
+                                        alfa = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфх\
+                                                цчшщъыьэюяABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+                                        sym = [1 for let in spec_value if let in alfa]
+                                        len_sym, len_spec_value = 0, 0
+                                        for _ in sym:
+                                            len_sym += 1
+                                        for _ in spec_value:
+                                            len_spec_value += 1
+                                        if len_sym == len_spec_value:
+                                            with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                                file.write(spec_value+'\n')
+                                            break
+                                        else:
+                                            print("ERROR: название производителя может состоять только из букв")
+
+                                    elif spec_name == 'Номер машины':
+                                        # проверка на правильность номера
+                                        try:
+                                            if len(spec_value) >= 8\
+                                                and spec_value[0] in 'АВЕКМНОРСТУХ' and (0 <= int(spec_value[1:4]) < 1000)\
+                                                and spec_value[4] in 'АВЕКМНОРСТУХ'\
+                                                and spec_value[5] in 'АВЕКМНОРСТУХ'and (0 <= int(spec_value[-2:]) < 1000):
+                                                    # проверка на уникальность номера
+                                                    with open('accounting.txt', 'r', encoding = 'UTF8') as file:
+                                                        lines = file.readlines()
+                                                        len_lines = 0
+                                                        for _ in lines:
+                                                            len_lines += 1
+                                                        list_index = []
+                                                        flag, index = 0, -1
+                                                        for cur_index in range(len_lines):
+                                                            if spec_value == lines[cur_index][:-1]:
+                                                                flag = 1
+                                                            if 'end' in lines[cur_index] and flag == 1:
+                                                                index = (cur_index// (limit-1) - 1) * (limit-1) + cur_index%(limit-1) -1
+                                                                flag = 0
+                                                                list_index.append(index)
+                                                                break
+                                                    if len(list_index) == 0:
+                                                        with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                                            file.write(spec_value+'\n')
+                                                        break
+                                                    else: print("ERROR: машина с таким номером существует в файле.")
+                                            else: raise Exception
+                                        except Exception:
+                                            print("ERROR: некорректный номер машины")
+
+                                    elif spec_name == 'Цвет':
+                                        # проверка на вхождение только букв
+                                        alfa = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфх\
+                                                цчшщъыьэюяABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+                                        sym = [1 for let in spec_value if let in alfa]
+                                        len_sym, len_spec_value = 0, 0
+                                        for _ in sym:
+                                            len_sym += 1
+                                        for _ in spec_value:
+                                            len_spec_value += 1
+                                        if len_sym == len_spec_value:
+                                            with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                                file.write(spec_value +'\n')
+                                            break
+                                        else:
+                                            print("ERROR: название цвета может состоять только из букв")
+                                    else:
+                                        with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                            file.write(spec_value+'\n')
+                                        break
+
+                        elif info_pattern[spec_name] == 'float':
+                            # длина кузова, ширина кузова
+                            while True:
+                                num = input( f'{spec_name}: ')
+                                # проверка на число
+                                try:
+                                    float(num)
+                                    spec_value = float(num)
+                                    with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                            file.write(str(spec_value)+'\n')
+                                            break
+                                except Exception: print('ERROR: введите число')
+
+                        else:
+                            choose_dict = {}
+                            num = 1
+                            # создание выборки
+                            for choice in info_pattern[spec_name]:
+                                choose_dict[num] = choice
+                                num += 1
+                            print(spec_name, ": ", *[choose_dict[i] + '(' + str(i) + ')' for i in choose_dict.keys()])
+                            while True:
+                                num = input( f'{spec_name}: ')
+                                # проверка выборки
+                                try:
+                                    float(num)
+                                    try:
+                                        len_choose_dict = 0
+                                        for _ in choose_dict:
+                                            len_choose_dict += 1
+                                        if 1 <= int(num) <= len_choose_dict:
+                                            choice = choose_dict[int(num)]
+                                            with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                                file.write(choice+'\n')
+                                            break
+                                    except Exception:
+                                        print("ERROR: введите номер целочисленно")
+                                except Exception: print('ERROR: введите число')
+                    with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                        file.write("end\n")
+                    break
+                elif request == '2':
+                    for i, value in enumerate(lines):
+                        if value[:-1] == 'end':
+                            start = i+1
+                    with open('accounting.txt', 'r', encoding='UTF8') as file:
+                        lines = file.readlines()
+                        del lines[start:]
+                        with open('accounting.txt', 'w', encoding='UTF8') as file:
+                            file.writelines(lines)
+                    break
+                else:
+                    print("ERROR: введите да или нет")
 
     print("\n MENU\n\
           \n Выйти из меню (0)\
