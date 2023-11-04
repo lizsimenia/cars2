@@ -102,8 +102,18 @@ while True:
                                 file.write(spec_value+'\n')
                             break
 
-            # elif list_spec[spec_name] == 'float':
-            #     spec_value = float_input(spec_name)
+            elif info_pattern[spec_name] == 'float':
+                # длина кузова, ширина кузова
+                 while True:
+                    num = input( f'{spec_name}: ')
+                    # проверка на число
+                    try:
+                        float(num)
+                        spec_value = float(num)
+                        with open('accounting.txt', 'a', encoding = 'UTF8') as file:
+                                file.write(str(spec_value)+'\n')
+                                break
+                    except Exception: print('ERROR: введите число')
 
             else:
                 choose_dict = {}
