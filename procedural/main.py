@@ -342,7 +342,26 @@ while True:
 
     elif act == '3':
         print("\nОТОБРАЖЕНИЕ ВСЕГО УЧЁТА\n")
-        # display()
+        with open('accounting.txt', 'r', encoding = 'UTF8') as file:
+            print('     '.join(list_spec[:7]))
+            index, start = 0, 1
+            data_base = file.readlines()
+            flag = 0
+            for i, value in enumerate(data_base):
+                if i == index:
+                    string_car = ""
+                    flag = 1
+                if flag == 1:
+                    if index != 0:
+                        tab = len_list_spec[(i-index//limit*limit)%limit-1] -len(value[:-1]) + 5
+                    else:
+                        tab = len_list_spec[(i-index//limit*limit)%limit] -len(value[:-1]) + 5
+                    string_car += (value[:-1] + tab * ' ')
+                    if value[:-1] in info_pattern['Тип коробки передач']:
+                        print(start, string_car)
+                        index += (limit+1)
+                        start += 1
+
     elif act == '4':
         print("\nИЗМЕНЕНИЕ ХАРАКТЕРИСТИКИ МАШИНЫ\n")
         # change()
