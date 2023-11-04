@@ -11,13 +11,19 @@ info_pattern = {'Номер машины': 'str',
                 'Ширина кузова(м)':'float'}
 
 list_spec  = [elem for elem in info_pattern]
-len_list_spec  = [len(elem) for elem in info_pattern]
-limit = len(list_spec)
+limit = 0
+len_list_spec = []
+for elem in list_spec:
+    limit += 1
+    i = 0
+    for i_sym in elem:
+        i += 1
+    len_list_spec.append(i)
 
 while True:
     # termination_check()
 
-    print(f"\n MENU\n\
+    print("\n MENU\n\
           \n Выйти из меню (0)\
           \n Добавление машины в учёт (1)\
           \n Удаление машины из учета (2)\
@@ -49,8 +55,13 @@ while True:
                             # проверка на вхождение только букв
                             alfa = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфх\
                                     цчшщъыьэюяABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-                            sym = [let in alfa for let in spec_value]
-                            if len(sym) == len(spec_value):
+                            sym = [1 for let in spec_value if let in alfa]
+                            len_sym, len_spec_value = 0, 0
+                            for _ in sym:
+                                len_sym += 1
+                            for _ in spec_value:
+                                len_spec_value += 1
+                            if len_sym == len_spec_value:
                                 with open('accounting.txt', 'a', encoding = 'UTF8') as file:
                                     file.write(spec_value+'\n')
                                 break
@@ -67,9 +78,12 @@ while True:
                                         # проверка на уникальность номера
                                         with open('accounting.txt', 'r', encoding = 'UTF8') as file:
                                             lines = file.readlines()
+                                            len_lines = 0
+                                            for _ in lines:
+                                                len_lines += 1
                                             list_index = []
                                             flag, index = 0, -1
-                                            for cur_index in range(len(lines)):
+                                            for cur_index in range(len_lines):
                                                 if spec_value == lines[cur_index][:-1]:
                                                     flag = 1
                                                 if 'end' in lines[cur_index] and flag == 1:
@@ -91,7 +105,12 @@ while True:
                             alfa = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфх\
                                     цчшщъыьэюяABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
                             sym = [1 for let in spec_value if let in alfa]
-                            if len(sym) == len(spec_value):
+                            len_sym, len_spec_value = 0, 0
+                            for _ in sym:
+                                len_sym += 1
+                            for _ in spec_value:
+                                len_spec_value += 1
+                            if len_sym == len_spec_value:
                                 with open('accounting.txt', 'a', encoding = 'UTF8') as file:
                                     file.write(spec_value +'\n')
                                 break
@@ -129,7 +148,10 @@ while True:
                     try:
                         float(num)
                         try:
-                            if 1 <= int(num) <= len(choose_dict) :
+                            len_choose_dict = 0
+                            for _ in choose_dict:
+                                len_choose_dict += 1
+                            if 1 <= int(num) <= len_choose_dict:
                                 choice = choose_dict[int(num)]
                                 with open('accounting.txt', 'a', encoding = 'UTF8') as file:
                                     file.write(choice+'\n')
@@ -140,7 +162,6 @@ while True:
 
         with open('accounting.txt', 'a', encoding = 'UTF8') as file:
             file.write("end\n")
-
 
     elif act == '2':
         print("\nУДАЛЕНИЕ МАШИНЫ ИЗ УЧЁТА\n")
