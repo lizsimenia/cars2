@@ -17,7 +17,7 @@ class Car:
 
 
 class AddWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, start = 0, end = len(pattern_ch.info_pattern)):
         super().__init__()
         self.setWindowTitle("Adding car")
         self.setFixedSize(QSize(300, 500))
@@ -28,7 +28,7 @@ class AddWindow(QMainWindow):
         self.info = []
         self.input_fields = []
 
-        for i_spec in pattern_ch.info_pattern:
+        for i_spec in list(pattern_ch.info_pattern)[start:end]:
             self.name_label = QLabel(f"{i_spec}*:")
             if isinstance(pattern_ch.info_pattern[i_spec], list):
                 self.name_input = QComboBox()
@@ -126,8 +126,6 @@ class AddWindow(QMainWindow):
         print(saved_info)
         self.close()
 
-
-
 class RemovalWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -168,6 +166,151 @@ class RemovalWindow(QMainWindow):
                 print("POPOP")
         self.close()
 
+class SearchWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Searching Car")
+        self.setFixedSize(QSize(500, 500))
+
+        layout = QVBoxLayout()
+        central_widget = QWidget()
+
+        self.name_label = QLabel("Поиск по:")
+        self.name_input = QLineEdit()
+        self.search_button = QPushButton("Найти")
+
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(len(pattern_ch.info_pattern))
+        self.table.setRowCount(100)
+
+        self.table.setHorizontalHeaderLabels([name for name in pattern_ch.info_pattern])
+
+        layout.addWidget(self.name_label)
+        layout.addWidget(self.name_input)
+        layout.addWidget(self.search_button)
+        layout.addWidget(self.table)
+
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+        self.search_button.clicked.connect(self.search)
+
+    def search(self):
+        self.table.clearContents()
+        lines = []
+        temp = []
+        with open('cars.txt', 'r', encoding = 'UTF-8') as file:
+            for i in file:
+                if i[:-1] != 'end':
+                    temp.append(i[:-1])
+                else:
+                    lines.append(temp)
+                    temp = []
+
+        row, column = 0, 0
+        for i_line in lines:
+            if self.name_input.text() in i_line:
+                for value in i_line:
+                    self.table.setItem(row, column, QTableWidgetItem(value))
+                    column += 1
+                print(i_line, row, column)
+                row += 1
+                column = 0
+
+        self.table.resizeColumnsToContents()
+
+
+class DisplayWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Display Car")
+        self.setFixedSize(QSize(500, 500))
+
+        layout = QVBoxLayout()
+        central_widget = QWidget()
+
+        self.ok_button = QPushButton("ОК")
+
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(len(pattern_ch.info_pattern))
+        self.table.setRowCount(100)
+
+        self.table.setHorizontalHeaderLabels([name for name in pattern_ch.info_pattern])
+
+        layout.addWidget(self.ok_button)
+        layout.addWidget(self.table)
+
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+        self.ok_button.clicked.connect(self.back)
+
+        lines = []
+        temp = []
+        with open('cars.txt', 'r', encoding = 'UTF-8') as file:
+            for i in file:
+                if i[:-1] != 'end':
+                    temp.append(i[:-1])
+                else:
+                    lines.append(temp)
+                    temp = []
+        print(lines)
+        row, column = 0, 0
+        for i_line in lines:
+            for value in i_line:
+                self.table.setItem(row, column, QTableWidgetItem(value))
+                column += 1
+            print(i_line, row, column)
+            row += 1
+            column = 0
+
+        self.table.resizeColumnsToContents()
+
+    def back(self):
+        self.close()
+
+class EditWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Edit car")
+        self.setFixedSize(QSize(300, 200))
+
+        self.layout = QVBoxLayout()
+        self.central_widget = QWidget()
+
+        self.name_label = QLabel("Номер машины:")
+        self.name_input = QLineEdit()
+        self.ask_label = QLabel("Характеристика для изменения:")
+        self.ask_input = QComboBox()
+        self.ask_input.addItems([i for i in pattern_ch.info_pattern][3:])
+
+        self.edit_button = QPushButton("Изменить")
+
+        self.layout.addWidget(self.name_label)
+        self.layout.addWidget(self.name_input)
+        self.layout.addWidget(self.ask_label)
+        self.layout.addWidget(self.ask_input)
+        self.layout.addWidget(self.edit_button)
+
+        self.central_widget.setLayout(self.layout)
+        self.setCentralWidget(self.central_widget)
+
+        self.edit_button.clicked.connect(self.edit)
+
+    def edit(self):
+        keys = [i for i in pattern_ch.info_pattern]
+        index_find = keys.index(self.ask_input.currentText())
+
+        self.window = AddWindow(index_find, index_find+1)
+        self.window.setFixedSize(100, 100)
+        self.window.setWindowTitle("Edit...")
+
+        self.window.save_info
+
+        self.window.show()
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -177,14 +320,16 @@ class MainWindow(QMainWindow):
 
         self.add_button = QPushButton("Добавить")
         self.delete_button = QPushButton("Удалить")
+        self.edit_button =  QPushButton("Изменить")
         self.search_button = QPushButton("Найти")
-        self.all_machines_button = QPushButton("Список машин")
+        self.display_button = QPushButton("Список машин")
 
         layout = QVBoxLayout()
         layout.addWidget(self.add_button)
         layout.addWidget(self.delete_button)
+        layout.addWidget(self.edit_button)
         layout.addWidget(self.search_button)
-        layout.addWidget(self.all_machines_button)
+        layout.addWidget(self.display_button)
 
         central_widget = QWidget()
         central_widget.setLayout(layout)
@@ -192,13 +337,13 @@ class MainWindow(QMainWindow):
 
         self.add_button.clicked.connect(self.adding)
         self.delete_button.clicked.connect(self.removal)
-        self.search_button.clicked.connect(self.search_machines)
-        self.all_machines_button.clicked.connect(self.show_all_machines)
+        self.search_button.clicked.connect(self.search)
+        self.display_button.clicked.connect(self.display)
+        self.edit_button.clicked.connect(self.edit)
 
-    def show_all_machines(self):
-        pass
-        # all_machines_window = AllMachinesWindow(self.machines)
-        # all_machines_window.show()
+    def display(self):
+        self.display_window = DisplayWindow()
+        self.display_window.show()
 
     def adding(self):
         self.adding_window = AddWindow()
@@ -208,14 +353,14 @@ class MainWindow(QMainWindow):
         self.removal_window = RemovalWindow()
         self.removal_window.show()
 
-    def sort_machines(self):
-        # TODO: Add code to sort machines in the text file database
-        pass
+    def search(self):
+        self.search_window = SearchWindow()
+        self.search_window.show()
 
-    def search_machines(self):
-        search_term = self.machine_name_input.text()
-        # TODO: Add code to search for machines in the text file database
-        pass
+    def edit(self):
+        self.edit_window = EditWindow()
+        self.edit_window.show()
+
 
 # Create the application instance and main window
 app = QApplication([])
