@@ -55,7 +55,8 @@ class AddWindow(QMainWindow):
         self.save_button = QPushButton("Сохранить")
         self.save_button.setEnabled(False)
 
-        self.save_button.clicked.connect(self.save_info)
+        if start == 0:
+            self.save_button.clicked.connect(self.save_info)
         layout.addWidget(self.save_button)
 
         central_widget.setLayout(layout)
@@ -64,6 +65,9 @@ class AddWindow(QMainWindow):
         for input_field in self.input_fields:
             if isinstance(input_field, QLineEdit):
                 input_field.textChanged.connect(self.validate_data)
+
+        if all(i for i in self.input_fields if isinstance(i, QComboBox)):
+            self.save_button.setEnabled(True)
 
     def validate_data(self):
         temp = []
@@ -298,18 +302,33 @@ class EditWindow(QMainWindow):
         self.edit_button.clicked.connect(self.edit)
 
     def edit(self):
-        keys = [i for i in pattern_ch.info_pattern]
-        index_find = keys.index(self.ask_input.currentText())
+        index = None
+        with open("cars.txt", "r", encoding = "UTF-8") as file:
+            self.lines = file.readlines()
+            for i, value in enumerate(self.lines):
+                if value[:-1] == self.name_input.text():
+                    index = i
+                    break
+            if index != None:
+                keys = [i for i in pattern_ch.info_pattern]
+                index_find = keys.index(self.ask_input.currentText())
 
-        self.window = AddWindow(index_find, index_find+1)
-        self.window.setFixedSize(100, 100)
-        self.window.setWindowTitle("Edit...")
+                self.window = AddWindow(index_find, index_find+1)
+                self.window.setFixedSize(100, 100)
+                self.window.setWindowTitle("Edit...")
 
-        self.window.save_info
+                self.window.show()
+                self.index = index_find + index
+                self.window.save_button.clicked.connect(self.rewrite_line)
 
-        self.window.show()
-
-
+    def rewrite_line(self):
+        self.new_data = self.window.name_input.currentText() if isinstance(self.window.name_input, QComboBox)\
+                    else self.window.name_input.text()
+        with open("cars.txt", "w", encoding = "UTF-8") as file:
+            self.lines[self.index] = self.new_data + '\n'
+            print(self.lines[self.index])
+            file.writelines(self.lines)
+        self.window.close()
 
 class MainWindow(QMainWindow):
     def __init__(self):
