@@ -109,6 +109,35 @@ class AddWindow(QMainWindow):
             file.write("\n".join(saved_info) + "\nend\n")
 
         print(saved_info)
+        self.close()
+
+
+
+class RemovalWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Remove car")
+
+        self.setFixedSize(QSize(200, 200))
+
+        layout = QVBoxLayout()
+        central_widget = QWidget()
+
+        self.name_label = QLabel("Номер машины*:")
+        self.name_input = QLineEdit()
+        self.delete_button = QPushButton("Удалить")
+
+        layout.addWidget(self.name_label)
+        layout.addWidget(self.name_input)
+        layout.addWidget(self.delete_button)
+
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+        self.delete_button.clicked.connect(self.remove)
+
+    def remove(self):
+        self.close()
 
 
 
@@ -135,7 +164,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.add_button.clicked.connect(self.adding)
-        self.delete_button.clicked.connect(self.delete_machine)
+        self.delete_button.clicked.connect(self.removal)
         self.search_button.clicked.connect(self.search_machines)
         self.all_machines_button.clicked.connect(self.show_all_machines)
 
@@ -147,12 +176,10 @@ class MainWindow(QMainWindow):
     def adding(self):
         self.adding_window = AddWindow()
         self.adding_window.show()
-        # self.machines.append(machine)
 
-    def delete_machine(self):
-        machine_name = self.machine_name_input.text()
-        # TODO: Add code to delete machine details from the text file database
-        pass
+    def removal(self):
+        self.removal_window = RemovalWindow()
+        self.removal_window.show()
 
     def sort_machines(self):
         # TODO: Add code to sort machines in the text file database
