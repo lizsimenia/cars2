@@ -73,7 +73,6 @@ class AddWindow(QMainWindow):
         self.save_button.setEnabled(all(i == 1 for i in temp))
         print(temp)
 
-
     # перемещает фокус на след строку
     def move_focus(self):
         current_index = -1
@@ -83,7 +82,6 @@ class AddWindow(QMainWindow):
                 break
         next_index = (current_index + 1) % len(self.input_fields)
         self.input_fields[next_index].setFocus()
-
 
     # проверки
     def validate(self, text):
@@ -115,7 +113,6 @@ class AddWindow(QMainWindow):
             return 1
         else:
              input_field.setStyleSheet("QLineEdit { background-color: rgb(255, 200, 200); }")
-
 
     def save_info(self):
         saved_info = []
@@ -154,10 +151,22 @@ class RemovalWindow(QMainWindow):
 
         self.delete_button.clicked.connect(self.remove)
 
-    def remove(self):
+    def remove(self, text):
+        index = None
+        with open("cars.txt", "r", encoding = "UTF-8") as file:
+            lines = file.readlines()
+            for i, value in enumerate(lines):
+                if value[:-1] == self.name_input.text():
+                    index = i
+                    break
+            if index != None:
+                del lines[index:index+len(pattern_ch.info_pattern)+1]
+                print(lines)
+                with open('cars.txt', 'w', encoding='UTF8') as file:
+                    file.writelines(lines)
+            else:
+                print("POPOP")
         self.close()
-
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
