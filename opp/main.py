@@ -53,11 +53,26 @@ class AddWindow(QMainWindow):
             self.setCentralWidget(central_widget)
 
         self.save_button = QPushButton("Сохранить")
+        self.save_button.setEnabled(False)
+
         self.save_button.clicked.connect(self.save_info)
         layout.addWidget(self.save_button)
 
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
+
+        for input_field in self.input_fields:
+            if isinstance(input_field, QLineEdit):
+                input_field.textChanged.connect(self.validate_data)
+
+    def validate_data(self):
+        temp = []
+        for input_field in self.input_fields:
+            if isinstance(input_field, QLineEdit):
+                temp.append(input_field.styleSheet() == "QLineEdit { background-color: white; }")
+        self.save_button.setEnabled(all(i == 1 for i in temp))
+        print(temp)
+
 
     # перемещает фокус на след строку
     def move_focus(self):
@@ -75,6 +90,7 @@ class AddWindow(QMainWindow):
         input_field = self.sender()
         if text == "":
             input_field.setStyleSheet("QLineEdit { background-color: rgb(255, 200, 200); }")
+            return 1
         else:
             input_field.setStyleSheet("QLineEdit { background-color: white; }")
 
@@ -86,6 +102,7 @@ class AddWindow(QMainWindow):
                 and text[4] in 'АВЕКМНОРСТУХ'\
                 and text[5] in 'АВЕКМНОРСТУХ'and (0 <= int(text[-2:]) < 1000):
              input_field.setStyleSheet("QLineEdit { background-color: white; }")
+             return 1
             else:
                 raise Exception
         except Exception:
@@ -95,6 +112,7 @@ class AddWindow(QMainWindow):
         input_field = self.sender()
         if text.isalpha():
             input_field.setStyleSheet("QLineEdit { background-color: white; }")
+            return 1
         else:
              input_field.setStyleSheet("QLineEdit { background-color: rgb(255, 200, 200); }")
 
