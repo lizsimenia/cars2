@@ -139,6 +139,8 @@ class RemovalWindow(QMainWindow):
 
         layout = QVBoxLayout()
         central_widget = QWidget()
+        self.error_label= QLabel("")
+        self.error_label.setStyleSheet("color: pink")
 
         self.name_label = QLabel("Номер машины*:")
         self.name_input = QLineEdit()
@@ -146,12 +148,29 @@ class RemovalWindow(QMainWindow):
 
         layout.addWidget(self.name_label)
         layout.addWidget(self.name_input)
+        layout.addWidget(self.error_label)
         layout.addWidget(self.delete_button)
 
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
+        self.name_input.textChanged.connect(self.validate_numm)
         self.delete_button.clicked.connect(self.remove)
+
+
+    def validate_numm(self, text):
+        input_field=self.sender()
+        try:
+            if len(text)>=8\
+                and text[0] in 'АВЕКМНОРСТУХ' and (0 <= int(text[1:4])<1000) \
+                and text[4] in 'АВЕКМНОРСТУХ'\
+                and text[5] in 'АВЕКМНОРСТУХ' and (0 <= int(text[-2:])<1000):
+                input_field.setStyleSheet("QLineEdit{background-color:white;}")
+                self.error_label.setText("")
+            else:
+                raise Exception
+        except Exception:
+            self.error_label.setText("Неверно введен номер")
 
     def remove(self, text):
         index = None
