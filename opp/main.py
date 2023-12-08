@@ -361,6 +361,7 @@ class MainWindow(QMainWindow):
         self.edit_button =  QPushButton("Изменить")
         self.search_button = QPushButton("Найти")
         self.display_button = QPushButton("Список машин")
+        self.exit_button = QPushButton("Выход")
 
         layout = QVBoxLayout()
         layout.addWidget(self.add_button)
@@ -368,6 +369,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.edit_button)
         layout.addWidget(self.search_button)
         layout.addWidget(self.display_button)
+        layout.addWidget(self.exit_button)
 
         central_widget = QWidget()
         central_widget.setLayout(layout)
@@ -378,7 +380,11 @@ class MainWindow(QMainWindow):
         self.search_button.clicked.connect(self.search)
         self.display_button.clicked.connect(self.display)
         self.edit_button.clicked.connect(self.edit)
+        self.exit_button.clicked.connect(self.exit)
 
+    def exit(self):
+        self.close()
+        
     def display(self):
         self.display_window = DisplayWindow()
         self.display_window.show()
